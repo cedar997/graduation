@@ -1,7 +1,51 @@
 import tensorflow as tsf 
 import numpy as np 
-from readdata import *
+import readdata
+from keras.models import Sequential
+from keras.layers import MaxPooling2D, Dense, Flatten, Dropout
+from keras.layers.convolutional import Conv2D
+from keras import regularizers
+from sklearn.model_selection import cross_val_score
+from sklearn.model_selection import KFold
+from keras.wrappers.scikit_learn import KerasClassifier
+from sklearn.metrics import confusion_matrix
 
-train_size=len(train_seq)
+def the_nn(X, Y, val_split, epochs, batch_size, node1, node2, reg, opti, filter1, filter2):
+    model = Sequential() 
+    model.add(Conv2D(node1, filter1, input_shape=(X.shape[1], X.shape[2], 1), padding='same', activation='relu',
+                     kernel_regularizer=reg))
+    model.add(MaxPooling2D(pool_size=(2, 2)))
+    model.add(Conv2D(node2, filter2, activation='relu', padding='same',
+                     kernel_regularizer=reg))
+    model.add(Flatten())
+    model.add(Dense(Y.shape[1], activation='softmax'))
 
-test_size=len(test_seq)
+    model.compile(loss='categorical_crossentropy', optimizer=opti, metrics=['accuracy'])
+    #X 81381*20*21*1
+    #Y 81381*3
+    history = model.fit(X, Y, validation_split = val_split, epochs = epochs, batch_size = batch_size)
+    return model, history
+if __name__ == "__main__":
+    ##训练阶段
+    train_seq,train_pssm,train_dssp=readdata.load_file('train.npy')
+    
+    X=readdata.format_pssm(train_pssm)
+    Y=readdata.format_dssp(train_dssp)
+    model, history = the_nn(X, Y, 0.2, 1, 1000, 96, 
+                                    10, regularizers.l1(0.01), "adam", (5, 5), (2, 2))
+    ##预测
+    test_seq,test_pssm,test_dssp=readdata.load_file('test.npy')
+    teX=readdata.format_pssm(test_pssm)
+    out = model.predict(teX)
+    predictY=np.zeros((len(out),3))
+    for i in range(len(out)):
+        predictY[i][np.argmax(out[i])]=1
+    ##测试阶段
+    
+    teY=readdata.format_dssp(test_dssp)
+    right=0
+    total=len(teY)
+    for i in range(total):
+        if (teY[i]==predictY[i]).all():
+            right+=1
+    print(right/total)
