@@ -33,7 +33,7 @@ if __name__ == "__main__":
     Y=readdata.format_dssp(train_dssp)
     teX=readdata.format_pssm(test_pssm)
     teY=readdata.format_dssp(test_dssp)
-<<<<<<< HEAD
+
     ##参数
     BATCH_SIZE=1000
     EPOCHS=50
@@ -42,7 +42,7 @@ if __name__ == "__main__":
     model, history = the_nn(X, Y, (teX,teY), EPOCHS, BATCH_SIZE, 96, 
                                     11, regularizers.l1(0.01), OPTIMIZER, (5, 5), (2, 2))
     ###结果
-=======
+
 
     model, history = the_nn(X, Y, (teX,teY), 5, 1000, 96, 
                                     10, regularizers.l1(0.01), "adam", (5, 5), (2, 2))
