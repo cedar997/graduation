@@ -36,10 +36,10 @@ if __name__ == "__main__":
     ##参数
     BATCH_SIZE=1000
     EPOCHS=50
-    OPTIMIZER="sgd"
+    OPTIMIZER="adam"
     ##模型
     model, history = the_nn(X, Y, (teX,teY), EPOCHS, BATCH_SIZE, 96, 
-                                    10, regularizers.l1(0.01), OPTIMIZER, (5, 5), (2, 2))
+                                    11, regularizers.l1(0.01), OPTIMIZER, (5, 5), (2, 2))
     ###结果
     
     
