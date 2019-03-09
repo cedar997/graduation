@@ -6,12 +6,6 @@ def load_file(path='train.npy'):
     seq=train['seq']
     #PSSM位置特定评分矩阵20N
     pssm=train['pssm'] 
-    #dssp数量跟seq相等
-    # Definition of Secondary Structure of Proteins 
-    # 只含有
-    #E extende-strand
-    # H alpha-helix
-    # - co
     dssp=train['dssp']
     #测试集#测试数量149
     return seq,pssm,dssp

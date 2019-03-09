@@ -5,10 +5,7 @@ from keras.models import Sequential
 from keras.layers import MaxPooling2D, Dense, Flatten, Dropout
 from keras.layers.convolutional import Conv2D
 from keras import regularizers
-from sklearn.model_selection import cross_val_score
-from sklearn.model_selection import KFold
-from keras.wrappers.scikit_learn import KerasClassifier
-from sklearn.metrics import confusion_matrix
+
 
 def the_nn(X, Y, val_data, epochs, batch_size, node1, node2, reg, opti, filter1, filter2):
     model = Sequential() 
@@ -33,10 +30,6 @@ if __name__ == "__main__":
     Y=readdata.format_dssp(train_dssp)
     teX=readdata.format_pssm(test_pssm)
     teY=readdata.format_dssp(test_dssp)
-<<<<<<< HEAD
-=======
-
->>>>>>> a956f67f4af79fccacbed02e4f72a6556d3055b6
     ##参数
     BATCH_SIZE=1000
     EPOCHS=50
@@ -45,10 +38,6 @@ if __name__ == "__main__":
     model, history = the_nn(X, Y, (teX,teY), EPOCHS, BATCH_SIZE, 96, 
                                     11, regularizers.l1(0.01), OPTIMIZER, (5, 5), (2, 2))
     ###结果
-<<<<<<< HEAD
-=======
-
->>>>>>> a956f67f4af79fccacbed02e4f72a6556d3055b6
 
     model, history = the_nn(X, Y, (teX,teY), 5, 1000, 96, 
                                     10, regularizers.l1(0.01), "adam", (5, 5), (2, 2))

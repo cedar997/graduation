@@ -7,11 +7,12 @@ BATCH_SIZE = 100
 
 
 ###
-def  train():
+def  train(X,Y,val_data):
+    ##x为
     x=tf.placeholder(tf.float32,[
-        BATCH_SIZE,
-    ])
-
+        BATCH_SIZE,X.shape[1],X.shape[2],X.shape[3]
+    ],name="x-input")
+    pass
 if __name__ == "__main__":
     train_seq,train_pssm,train_dssp=readdata.load_file('train.npy')
     test_seq,test_pssm,test_dssp=readdata.load_file('test.npy')
