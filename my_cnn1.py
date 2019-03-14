@@ -3,12 +3,31 @@ from keras.models import Sequential,load_model
 from keras import optimizers, callbacks
 from keras.layers import Dense, Activation, Dropout, Conv1D
 import matplotlib.pyplot as plt
+import keras.backend as K
 ##模型全局参数
 SEQ_SIZE_MAX=760
 PLOT=True
 MODEL_SAVE=True
 MODEL_PATH='saved_model.h5'
 #####
+def plot_history(history):
+    # summarize history for accuracy
+    plt.plot(history.history['acc'])
+    plt.plot(history.history['val_acc'])
+    plt.title('model accuracy')
+    plt.ylabel('accuracy')
+    plt.xlabel('epoch')
+    plt.legend(['train', 'validation'], loc='upper left')
+    plt.show()
+    # summarize history for loss
+    plt.plot(history.history['loss'])
+    plt.plot(history.history['val_loss'])
+    plt.title('model loss')
+    plt.ylabel('loss')
+    plt.xlabel('epoch')
+    plt.legend(['train', 'validation'], loc='upper left')
+    plt.show()
+    # summarize history for error
 def get_pssm(path):
     ds=np.load(path).item()
     pssm=np.array(ds['pssm'])
@@ -71,25 +90,11 @@ def Q3_accuracy(real, pred):
 
     return correct / total
 
-def plot_history(history):
-    # summarize history for accuracy
-    plt.plot(history.history['acc'])
-    plt.plot(history.history['val_acc'])
-    plt.title('model accuracy')
-    plt.ylabel('accuracy')
-    plt.xlabel('epoch')
-    plt.legend(['train', 'validation'], loc='upper left')
-    plt.show()
-    # summarize history for loss
-    plt.plot(history.history['loss'])
-    plt.plot(history.history['val_loss'])
-    plt.title('model loss')
-    plt.ylabel('loss')
-    plt.xlabel('epoch')
-    plt.legend(['train', 'validation'], loc='upper left')
-    plt.show()
-    # summarize history for error
-    
+
+def q3_pred(y_true, y_pred):
+    # q3=Q3_accuracy(y_true,y_pred)
+    print(type(q3_pred))
+    return K.mean(y_pred)   
 def model():
     m = Sequential ()
     m.add( Conv1D (128,11,padding='same',activation='relu',input_shape=( 760 ,21 ) ) )
@@ -100,8 +105,9 @@ def model():
     opt = optimizers.Adam(lr=0.0005)
     m.compile(optimizer=opt,
                 loss='categorical_crossentropy',
-                metrics=['accuracy'])
+                metrics=[])
     return m
+############
 def test_saved():
     X_test=get_pssm('test.npy')
     Y_test=get_dssp('test.npy')
@@ -112,13 +118,13 @@ def test_saved():
     y=get_dssp_raw('test.npy')
     print(p[1])
     print(y[1])
-def test():
+def test(epochs=100):
     X_train=get_pssm('train.npy')
     Y_train=get_dssp('train.npy')
     X_test=get_pssm('test.npy')
     Y_test=get_dssp('test.npy')
     m=model()
-    history=m.fit( X_train,Y_train,epochs=50,batch_size=64,validation_split=0.1)
+    history=m.fit( X_train,Y_train,epochs=epochs,batch_size=64,validation_split=0)
     predictions = m.predict(X_test)
     print("\n\nQ3 accuracy: " + str(Q3_accuracy(Y_test, predictions)) + "\n\n")
     if MODEL_SAVE==True:
@@ -127,5 +133,5 @@ def test():
         plot_history(history)
 
 if __name__ == "__main__":
-    # test()
+    # test(50)
     test_saved()
