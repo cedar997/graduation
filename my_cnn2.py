@@ -15,13 +15,14 @@ SEQ_SIZE_MAX = 760
 PLOT = True
 MODEL_SAVE = True
 MODEL_PATH = 'saved_model.h5'
+PLOT_TITLE='default'
 #####
 def plot_history(history):
     # summarize history for accuracy
     plt.plot(history.loss)
     plt.plot(history.q3)
     plt.plot(history.acc)
-    plt.title('model accuracy')
+    plt.title(PLOT_TITLE)
     plt.ylabel('accuracy')
     plt.xlabel('epoch')
     plt.legend(['loss', 'q3','acc'], loc='upper left')
@@ -140,9 +141,9 @@ class Histories(keras.callbacks.Callback):
 def model():
     m = Sequential ()
     m.add( Conv1D (128,11,padding='same',activation='relu',input_shape=( 760 ,21 ) ) )
-    m.add(Dropout(0.3))
+    m.add(Dropout(0.2))
     m.add(Conv1D(64, 11, padding='same', activation='relu'))
-    m.add(Dropout(0.3))
+    m.add(Dropout(0.2))
     m.add(Conv1D(4, 11, padding='same', activation='softmax'))
     opt = optimizers.Adam(lr=0.0005)
     m.compile(optimizer=opt,
@@ -176,5 +177,6 @@ def test(epochs=100):
         plot_history(myHistory)
 
 if __name__ == "__main__":
+    PLOT_TITLE='drop out = 0.3'
     test(50)
     # test_saved()
