@@ -1,3 +1,4 @@
+#没有区分首尾氨基酸
 import tensorflow as tf
 from tensorflow.contrib import rnn 
 from tensorflow.nn import rnn_cell
@@ -58,37 +59,9 @@ class DataSet:
            
         return ret
 
-def get_pssm(path):
-    ds = np.load(path).item()
-    pssm = np.array(ds['pssm'])
-    del ds
-    num = len(pssm)
-    ret = np.zeros((num, SEQ_SIZE_MAX, 21))  # 29=氨基酸数21+二级结构数8 序列最多为759个氨基酸
-    for i in range(num):
-        for j in range(SEQ_SIZE_MAX):
-            if j < len(pssm[i]):
-                ret[i, j, 0:20] = pssm[i][j]
-            else:
-                ret[i, j, 20] = 1
 
-    return ret
-def get_dssp(path):
-    ds = np.load(path).item()
-    dssp = ds['dssp']
-    del ds
-    num = len(dssp)
-    print(num)
-    ret = np.zeros((num, SEQ_SIZE_MAX, 4))
-    onehot_dict = {'E': 0, 'H': 1, '-': 2, ' ': 3}
-    for i in range(num):
-            dssp[i] = dssp[i]+' '*(SEQ_SIZE_MAX-len(dssp[i]))
-            # print(dssp[i])
-            # print(i,len(dssp[i]))
-            for j in range(759):
-                k = onehot_dict[dssp[i][j]]
-                ret[i, j, k] = 1
-        # 29=氨基酸数21+二级结构数8 序列最多为759个氨基酸
-    return ret
+
+   
 # np.random.seed(100)
 def RNN(x,weights,biases):
     x=tf.transpose(x,[1,0,2]) #64,13,21 ->13,64,21
