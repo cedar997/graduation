@@ -9,37 +9,43 @@ import numpy as np
 import keras
 from keras.models import Sequential, load_model,Model
 from keras import optimizers, callbacks
-from keras.layers import TimeDistributed, Dense, Activation, Dropout, LSTM,Input
+from keras.layers import TimeDistributed, Dense, Activation, Dropout, LSTM
 from keras.layers import Bidirectional
 import matplotlib.pyplot as plt
 import keras.backend as K
-# 模型全局参数
-SEQ_SIZE_MAX = 760
-PLOT = True
-MODEL_SAVE = True
-MODEL_PATH = 'saved_model.h5'
-PLOT_TITLE='default'
-#####
-def plot_history(history):
-    # summarize history for accuracy
-    plt.plot(history.loss)
-    plt.plot(history.q3)
-    plt.plot(history.acc)
-    plt.title(PLOT_TITLE)
+from record import *
+def plot_history(*historys):
+    plt.title('Q3')
     plt.ylabel('accuracy')
     plt.xlabel('epoch')
-    plt.legend(['loss', 'q3','acc'], loc='upper left')
+    infos=[]
+    for history in historys:
+        plt.plot(history.q3)
+        infos.append(history.info)
+    plt.legend(infos, loc='upper left')
     plt.show()
-    # summarize history for loss
-    # plt.plot(history.history['loss'])
-    # plt.plot(history.history['val_loss'])
-    # plt.title('model loss')
-    # plt.ylabel('loss')
-    # plt.xlabel('epoch')
-    # plt.legend(['train', 'validation'], loc='upper left')
-    # plt.show()
-    # summarize history for error
+def plot_record(*ids):
+    plt.title('Q3')
+    plt.ylabel('accuracy')
+    plt.xlabel('epoch')
+    infos=[]
+    for id in ids:
+        data=read_record(id)
+        plt.plot(data['q3'])
+        infos.append(data['info'])
+    plt.legend(infos, loc='upper left')
+    plt.show()
 
+    # plt.title('loss')
+    # plt.ylabel('loss rate')
+    # plt.xlabel('epoch')
+    # infos=[]
+    # for id in ids:
+    #     data=read_record(id)
+    #     plt.plot(data['loss'])
+    #     infos.append(data['info'])
+    # plt.legend(infos, loc='upper left')
+    # plt.show()
 
 def get_pssm(path):
     ds = np.load(path).item()
@@ -119,36 +125,47 @@ def q3_pred(y_true, y_pred):
 
 
 class Histories(keras.callbacks.Callback):
+    
     def on_train_begin(self, logs={}):
         self.loss = []
         self.q3 = []
         self.acc=[]
-        self.q3.append(0)
-        pass
+    def lr_change(self,epoch):
+        if epoch ==10:
+            K.set_value(self.model.optimizer.lr, .006)
+        if epoch ==20:
+            K.set_value(self.model.optimizer.lr, .005)  
+        if epoch==30:
+            K.set_value(self.model.optimizer.lr, .004)   
     def on_train_end(self, logs={}):
         return
     def on_epoch_begin(self, epoch, logs={}):
+        if GRAD:
+            self.lr_change(epoch)
         return
     def on_epoch_end(self, epoch, logs={}):
-        self.loss.append(logs.get('loss'))
+        self.loss.append(float(logs.get('loss')))
         self.acc.append(logs.get('acc'))
         y_pred = self.model.predict(self.validation_data[0])
         y_real= self.validation_data[1]
         q3=Q3_accuracy(y_real, y_pred)
-        prev_q3=self.q3[-1]
-        # if q3-prev_q3<0.01:
-        #     lr=K.get_value( self.model.optimizer.lr)
-        #     lr*=0.1
-        #     print('学习率',lr)
-        #     self.model.optimizer.lr.set_value(lr)
         self.q3.append(q3)
         print("Q3 accuracy: " + str(q3))
+        
         return
     def on_batch_begin(self, batch, logs={}):
         return
     def on_batch_end(self, batch, logs={}):
         return
     
+def write_history(history,info='default',id=0):
+    data={}
+    data['info']=info
+    data['q3']=history.q3
+    data['loss']=history.loss
+    add_record(id,data)
+def get_info(args):
+    pass
 
 def model():
     
@@ -177,7 +194,7 @@ def test_saved():
     y=get_dssp_raw('test.npy')
     print(p[1])
     print(y[1])
-def train_after_saved():
+def train_from_saved():
     X_train=get_pssm('train.npy')
     Y_train=get_dssp('train.npy')
     myHistory=Histories()
@@ -187,44 +204,57 @@ def train_after_saved():
             epochs=10,
             validation_split=0.1,
             callbacks=[myHistory])
-    # Save model
     model.save(MODEL_PATH)
-    if PLOT:
-        plot_history(myHistory)
-def lstm_model():
-    num_aa=21
-    num_ps=4
-    latent_dim=128
+    return myHistory
+def lstm_model(unit=128,lr=0.008,input_dim=21,output_dim=4):
     model=Sequential()
-    # model.add(Input(shape=(None,num_aa)))
-    model.add(Bidirectional( LSTM(latent_dim,return_sequences=True,
-                input_shape=(None,num_aa),
-                implementation=1)))
+    model.add( Bidirectional( LSTM(
+                 unit,return_sequences=True,
+                input_shape=(None,input_dim)
+             )               )      )
     model.add(Dropout(0.5))
-    model.add(TimeDistributed(Dense(num_ps, activation='softmax')))
-    
-    opt = optimizers.Adam(lr=0.008)
+    model.add(TimeDistributed(Dense(output_dim, activation='softmax')))
+    opt = optimizers.Adam(lr=lr)
     model.compile(optimizer=opt, loss='categorical_crossentropy')
     return model
 
-def test(epochs=100):
+def train(model,epochs=20,batch_size=64,info='default',id=0):
     X_train=get_pssm('train.npy')
     Y_train=get_dssp('train.npy')
     myHistory=Histories()
-    print(X_train.shape,len(Y_train))
-    model=lstm_model()
-    # model.summary()
     model.fit(X_train, Y_train,
-            batch_size=64,
+            batch_size=batch_size,
             epochs=epochs,
             validation_split=0.1,
-            callbacks=[myHistory])
-    # Save model
+            callbacks=[myHistory]
+            )
+    if SUMMARY:
+        model.summary()
     model.save(MODEL_PATH)
+    if RECORD :
+        if id==0:
+            id=np.random.randint(0,1000)
+        write_history(myHistory,info,id=id)
+        print('模型保存id',id)
     if PLOT:
-        plot_history(myHistory)
+        plot_record(id)
+    return id
+# 模型全局参数
+SEQ_SIZE_MAX = 760
+PLOT = True
+MODEL_SAVE = True
+MODEL_PATH = 'saved_model.h5'
+PLOT_TITLE='default'
+SUMMARY=False
+RECORD=True
+GRAD=False
+def test():
+    import os
+    model=lstm_model(lr=0.007)
+    train(model,40,info='lr0.007')
+    
+    os.system('plaympeg 1.mp3')
 if __name__ == "__main__":
-    PLOT_TITLE='lr=0.008'
-    test(20)
-    # train_after_saved()
-    test_saved()
+    plot_record(157,16,801)
+    # test()
+    
