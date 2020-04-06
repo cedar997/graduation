@@ -134,17 +134,19 @@ def train(model,epochs=20,batch_size=64,info='default',id=0):
     return id,myHistory
 # 模型全局参数
 SEQ_SIZE_MAX = 760
-
 MODEL_SAVE = True
 MODEL_PATH = 'saved_model.h5'
 PLOT_TITLE='default'
 SUMMARY=True
 RECORD=False
 PLOT = True
+EPOCHS=3
+LEARN_RATE=0.005
+#####
 def test():
     import os
-    model=gru_model_2(lr=0.005)
-    id,myHistory=train(model,1,info='lr_0.005 gru dropout0.5   20_epochs onehot')
+    model=gru_model_2(lr=LEARN_RATE)
+    id,myHistory=train(model,EPOCHS,info='lr_0.005 gru dropout0.5   20_epochs onehot')
     if PLOT:
         if id!=0:
             plot_record(id)
