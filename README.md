@@ -9,7 +9,11 @@ linux、window都可以，mac没设备测试(T_T)
  python 3.8  
  tensorflow '2.2.0-rc2'
 ## 搭建运行所需环境
-1. 如果你的机器有nvidia显卡，并支持cuda,则可以大大加快训练的速度 
+>sudo apt install git  
+>git clone https://github.com/cedar997/graduation.git   
+>cd graduation
+
+- notes: 如果你的机器有nvidia显卡，并支持cuda,则可以大大加快训练的速度 
 具体安装步骤请参考 https://tensorflow.google.cn/install  
 这里只给出cpu版本的环境搭建方法
 
@@ -21,8 +25,10 @@ pip3 config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
 # 安装运行所需的扩展包
 pip3 install numpy keras matplotlib tensorflow  --user
 ```
-## 运行方法
+# 开始探索！！！
+## 第一步
 >python3 main.py  
+
 
 如果需要修改运行效果，请查看main.py
 # 详细说明
