@@ -1,6 +1,6 @@
 # graduation
 毕业设计 蛋白质二级结构预测   
-联系方式 qq：527474091 
+ 
 使用的训练及测试数据 test.npy,train.npy来自JPred4 
 地址：http://www.compbio.dundee.ac.uk/jpred/about_RETR_JNetv231_details.shtml 
 在这里直接给出，是为了方便使用，如有侵犯，会立刻删除。 
