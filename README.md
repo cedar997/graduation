@@ -4,7 +4,8 @@
 使用的训练及测试数据 test.npy,train.npy来自JPred4 
 地址：http://www.compbio.dundee.ac.uk/jpred/about_RETR_JNetv231_details.shtml 
 在这里直接给出，是为了方便使用，如有侵犯，会立刻删除。 
-水平所限，目前只是做了很简单的搭建神经网络和训练过程，不涉及更深入的内容。 
+水平所限，目前只是做了很简单的搭建神经网络和训练过程，不涉及更深入的内容。
+交流qq群：811468907 
 # 使用教程 
 ## 操作系统
 linux、window都可以，mac没设备测试(T_T)  
@@ -27,7 +28,7 @@ sudo apt install python3-pip
 # 使用清华pip镜像，下载更快
 pip3 config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple  
 # 安装运行所需的扩展包
-pip3 install numpy keras matplotlib tensorflow  --user
+pip3 install -r .\requirements.txt
 ```
 # 开始探索！！！
 ## 第一步

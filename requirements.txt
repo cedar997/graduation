@@ -1,1 +1,4 @@
-numpy keras tensorflow matplotlib 
+numpy
+keras
+tensorflow==2.2
+matplotlib

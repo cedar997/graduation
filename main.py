@@ -140,10 +140,10 @@ PLOT_TITLE='default'
 SUMMARY=True
 RECORD=False
 PLOT = True
-EPOCHS=3
+EPOCHS=20
 LEARN_RATE=0.005
 #####
-def test():
+def testGru():
     import os
     model=gru_model_2(lr=LEARN_RATE)
     id,myHistory=train(model,EPOCHS,info='lr_0.005 gru dropout0.5   20_epochs onehot')
@@ -152,8 +152,17 @@ def test():
             plot_record(id)
         else:
             plot_history(myHistory)
+def testCnn():
+    import os
+    model=cnn_model(lr=LEARN_RATE)
+    id,myHistory=train(model,EPOCHS,info='lr_0.005 cnn ')
+    if PLOT:
+        if id!=0:
+            plot_record(id)
+        else:
+            plot_history(myHistory)
 if __name__ == "__main__":
-    test()
+    testCnn()
    
     
     
