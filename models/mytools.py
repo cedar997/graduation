@@ -8,9 +8,9 @@ from keras.layers import Bidirectional
 import matplotlib.pyplot as plt
 import keras.backend as K
 ###
-file_name='a.yaml'
+file_name= '../data/a.yaml'
 SEQ_SIZE_MAX = 760
-MODEL_PATH = 'saved_model.h5'
+MODEL_PATH = '../data/saved_model.h5'
 GRAD=False
 #是否将训练集的一部分用作验证
 VALID=False
@@ -84,6 +84,7 @@ def get_pssm(path):
                 ret[i, j, 20] = 1
 
     return ret
+
 def get_onehot(path):
     ds = np.load(path,allow_pickle=True).item()
     seq = np.array(ds['seq'])
@@ -198,8 +199,8 @@ class Histories(keras.callbacks.Callback):
         self.acc=[]
         if not VALID:
             # self.X_test=get_pssm('test.npy')
-            self.X_test=get_onehot('test.npy')
-            self.Y_test=get_dssp('test.npy')
+            self.X_test=get_onehot('data/test.npy')
+            self.Y_test=get_dssp('data/test.npy')
     def load_from_record(self,id):
         data=read_record(id)
         self.loss.append( data.loss)
@@ -207,6 +208,8 @@ class Histories(keras.callbacks.Callback):
         self.info=data.info
     def on_train_begin(self, logs={}):
         pass
+    def getq3(self):
+        return self.q3
         
 #####  此处修改学习率变化函数
     def lr_change(self,epoch):
@@ -251,20 +254,20 @@ def get_info(list,*args):
 
 ############
 def test_saved():
-    X_test=get_pssm('test.npy')
-    Y_test=get_dssp('test.npy')
+    X_test=get_pssm('../data/test.npy')
+    Y_test=get_dssp('../data/test.npy')
     m=load_model(MODEL_PATH)
     predictions = m.predict(X_test,)
     print("\n\nQ3 accuracy: E H C" + str(Q3_EHC(Y_test, predictions)) + "\n\n")
     p=dssp_trans(onehot=predictions)
-    y=get_dssp_raw('test.npy')
-    seq=get_seq('test.npy')
+    y=get_dssp_raw('../data/test.npy')
+    seq=get_seq('../data/test.npy')
     print(seq[0])
     print(p[0])
     print(y[0])
 def train_from_saved():
-    X_train=get_pssm('train.npy')
-    Y_train=get_dssp('train.npy')
+    X_train=get_pssm('../data/train.npy')
+    Y_train=get_dssp('../data/train.npy')
     myHistory=Histories()
     model=load_model(MODEL_PATH)
     model.fit(X_train, Y_train,
