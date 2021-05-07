@@ -16,9 +16,9 @@ GRAD=False
 VALID=False
 ###
 def plot_history(*historys):
-    plt.title('Q3准确率随代数的变化')
-    plt.ylabel('Q3准确率')
-    plt.xlabel('代数')
+    plt.title('Q3准确率随代数的变化',fontproperties='SimHei')
+    plt.ylabel('Q3准确率',fontproperties='SimHei')
+    plt.xlabel('代数',fontproperties='SimHei')
     infos=[]
     
     for history in historys:

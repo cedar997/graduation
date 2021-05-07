@@ -161,6 +161,7 @@ def testCnn():
             plot_record(id)
         else:
             plot_history(myHistory)
+
 if __name__ == "__main__":
     testCnn()
    
