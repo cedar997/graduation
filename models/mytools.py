@@ -197,9 +197,10 @@ class Histories(keras.callbacks.Callback):
         self.loss = []
         self.q3 = []
         self.acc=[]
+        self.index=0
         if not VALID:
-            # self.X_test=get_pssm('test.npy')
-            self.X_test=get_onehot('data/test.npy')
+            self.X_test=get_pssm('data/test.npy')
+            #self.X_test=get_onehot('data/test.npy')
             self.Y_test=get_dssp('data/test.npy')
     def load_from_record(self,id):
         data=read_record(id)
@@ -208,8 +209,15 @@ class Histories(keras.callbacks.Callback):
         self.info=data.info
     def on_train_begin(self, logs={}):
         pass
-    def getq3(self):
+
+    def get_q3(self):
         return self.q3
+    def get_loss(self):
+        return self.loss
+    def get_acc(self):
+        return self.acc
+    def get_index(self):
+        return self.index
         
 #####  此处修改学习率变化函数
     def lr_change(self,epoch):
@@ -234,8 +242,8 @@ class Histories(keras.callbacks.Callback):
             y_real= self.Y_test
         q3=Q3_accuracy(y_real, y_pred)
         self.q3.append(q3)
-        print("Q3 accuracy: " + str(q3))
-        
+        self.index = epoch
+        print("\n"+str(epoch)+"Q3 accuracy: " + str(q3))
         return
     def on_batch_begin(self, batch, logs={}):
         return

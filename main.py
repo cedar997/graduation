@@ -11,6 +11,18 @@ import models.net as net
 from models.db import Para
 import sys
 from models.mytools import *
+
+def train_mode_get_his(model, his,para):
+    X_train = get_pssm('data/train.npy')
+    # X_train=get_onehot('data/train.npy')
+    Y_train = get_dssp('data/train.npy')
+    myHistory = his
+    model.fit(X_train, Y_train,
+              batch_size=para.batch,
+              epochs=para.epoch,
+              # validation_split=0.1,
+              callbacks=[myHistory]
+              )
 def train(model,epochs=20,batch_size=64,info='default',id=0):
     X_train=get_pssm('data/train.npy')
     #X_train=get_onehot('data/train.npy')

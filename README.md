@@ -49,7 +49,16 @@ pip3 install -r requirements.txt
 ![img.png](media/img.png)
 ### 训练结果
 ![img.png](media/result1.png)
-# 详细说明
+
+
+## 第二步
+使用网页进行管理，可以选择多个模型
+>python3 app.py
+
+用浏览器打开 http://localhost:5000/ 效果如下图所示
+ ![img.png](media/img_web.png)
+
+## 文件说明
 - train.npy为训练集，test.npy为测试集
 - main.py为主程序，运行它，就能得到我预设的效果，修改它就可以得到更多的功能
 - mytools.py 为我写的工具箱，方便程序编写

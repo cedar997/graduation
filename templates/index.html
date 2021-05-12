@@ -1,72 +1,143 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="UTF-8">
-  <!-- import CSS -->
-  <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <meta charset="UTF-8">
+    <!-- import CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
 </head>
 <body>
-  <div id="app">
-      <el-label>模型</el-label>
-      <el-select v-model="train_data.net" placeholder="请选择">
-            <el-option
-              v-for="(value,key,index) in options"
-              :key="key"
-              :label="value"
-              :value="key">
-            </el-option>
-        </el-select>
-      <el-input v-model="train_data.lr" placeholder="学习率">
-          <template slot="prepend">学习率</template>
-      </el-input>
-      <el-input v-model="train_data.epoch" type="number" placeholder="训练代数">
-          <template slot="prepend">训练代数</template>
-      </el-input>
-    <el-button @click="alertStart()">开始训练</el-button>
+<div id="app">
+    <el-form label-width="80px">
+        <el-row>
+            <el-col :span="4">
+                <el-form-item label="模型">
+                    <el-select v-model="train_data.net" placeholder="请选择">
+                        <el-option
+                                v-for="(value,key,index) in options"
+                                :key="key"
+                                :label="value"
+                                :value="key">
+                        </el-option>
+                    </el-select>
+                </el-form-item>
+            </el-col>
+            <el-col :span="4">
+                <el-form-item label="学习率">
+                    <el-input v-model="train_data.lr" placeholder="学习率"></el-input>
+                </el-form-item>
+            </el-col>
+            <el-col :span="4">
+                <el-form-item label="训练代数">
+                    <el-input v-model="train_data.epoch" type="number" placeholder="训练代数"></el-input>
+                </el-form-item>
+            </el-col>
+        </el-row>
+        <el-row>
+            <el-form-item>
+                <el-button @click="alertStart()">开始训练</el-button>
+            </el-form-item>
+        </el-row>
+    </el-form>
+    <div v-if="running">
+        已经开始训练，请耐心等待，或查看控制台进度。
+    </div>
     <el-dialog :visible.sync="visible" title="Hello world">
-      <p>Try Element</p>
+        <p>Try Element</p>
     </el-dialog>
-  </div>
+    <!--      图表-->
+    <div id="main" style="width: 1000px;height:500px;"></div>
+</div>
 </body>
-  <!-- import Vue before Element -->
-  <script src="https://unpkg.com/vue/dist/vue.js"></script>
-  <!-- import JavaScript -->
-  <script src="https://unpkg.com/element-ui/lib/index.js"></script>
-    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
-  <script>
+<!-- import Vue before Element -->
+<script src="https://unpkg.com/vue/dist/vue.js"></script>
+<!-- import JavaScript -->
+<script src="https://unpkg.com/element-ui/lib/index.js"></script>
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+<script src="https://cdn.staticfile.org/echarts/4.3.0/echarts.min.js"></script>
+<script>
     new Vue({
-      el: '#app',
+        el: '#app',
         methods: {
-          async alertStart () {
-              data = this.train_data
-              const res = await axios.post('http://localhost:5000/run',data)
-              console.log(res)
-              this.train_data.lr = res.data
-          },
-            async getData () {
-              const res = await axios.get('http://localhost:5000/data')
-              console.log(res)
-              this.options = res.data
-          }
+
+            async alertStart() {
+                this.running = true
+                data = this.train_data
+                axios.post('http://localhost:5000/run', data).then(function (res) {
+                    console.log(res.data)
+                })
+                this.updateProgress()
+
+            },
+            async getData() {
+                const res = await axios.get('http://localhost:5000/data')
+                console.log(res)
+                this.options = res.data
+            },
+            async updateProgress() {
+                var myChart = echarts.init(document.getElementById('main'));
+                for (var i = 0; i <= this.train_data.epoch;) {
+                    const res = await axios.get('http://localhost:5000/index/' + i)
+                    console.log(res)
+                    q3_data = res.data.q3
+                    loss_data = res.data.loss
+                    i = res.data.index
+                    var result_x = []
+                    for (var i = 1; i <= res.data.q3.length; i++) {
+                        result_x.push(i)
+                    }
+
+                    var option = {
+                        title: {
+                            text: '训练变化图'
+                        },
+                        tooltip: {},
+                        legend: {
+                            bottom: 5,
+                            data: ['q3准确率', 'loss']
+                        },
+                        xAxis: {
+                            data: result_x
+                        },
+                        yAxis: {},
+                        series: [
+                            {
+                                name: 'q3准确率',
+                                type: 'line',
+                                data: q3_data
+                            },
+                            {
+                                name: 'loss',
+                                type: 'line',
+                                data: loss_data
+                            }
+                        ]
+                    };
+                    myChart.setOption(option);
+                }
+
+            }
 
         },
         mounted: function () {
-             this.getData();
+            this.getData();
         },
-      data: function() {
-        return {
-            options: [],
-            value: '',
-            train_data: {
-                net: 'cnn_model',
-                lr: 0.005,
-                epoch: 20,
-            },
-
-            visible: false
+        data: function () {
+            return {
+                options: [],
+                running: false,
+                value: '',
+                train_data: {
+                    net: 'cnn_model',
+                    lr: 0.005,
+                    epoch: 20,
+                },
+                train_state: {
+                    index: 0,
+                },
+                visible: false
+            }
         }
-      }
 
     })
-  </script>
+</script>
 </html>
