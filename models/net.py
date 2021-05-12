@@ -125,13 +125,14 @@ def gru_model_uni(unit=128, lr=0.008, input_dim=21, output_dim=4):
     opt = optimizers.Adam(lr=lr)
     model.compile(optimizer=opt, loss='categorical_crossentropy')
     return model
+
 net_map={
     'cnn_model':'卷积神经网络',
-    'lstm_model': 'lstm_model',
-    'gru_model':'gru_model',
-    'gru_model_2':'gru_model_2',
-    'gru_model_uni':'gru_model_uni',
-    'gru_model_3':'gru_model_3'
+    'lstm_model': 'lstm-单层双向',
+    'gru_model':'单层双向gru',
+    'gru_model_2':'双层双向gru',
+    'gru_model_uni':'单层单向gru',
+    'gru_model_3':'三层双向gru'
 }
 
 
